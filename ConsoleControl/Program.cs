@@ -11,9 +11,14 @@ namespace ConsoleControl
 	class Snake
 	{
 		private List<Point> points = new List<Point>() { new Point() };
-		private Point randomPoint = new Point();
+		private static Random rnd = new Random();
+		private Point randomPoint = new Point()
+		{
+			PosX = rnd.Next(Point.BORDER_RIGHT - 1),
+			PosY = rnd.Next(Point.BORDER_BOTTOM - 1)
+		};
 
-		public void Add(Point p)
+        public void Add(Point p)
 		{
 			points.Add(p);
 		}
@@ -24,18 +29,34 @@ namespace ConsoleControl
 			{
 				for (int j = 0; j <= Point.BORDER_RIGHT; j++)
 				{
-					Point temp = new Point(j, i);
-					if (points.Contains(temp) || temp.Equals(randomPoint))
+					if (j == Point.BORDER_RIGHT || i == Point.BORDER_BOTTOM)
 					{
-						Console.Write('*');
+
+						if (j == Point.BORDER_RIGHT)
+						{
+							Console.Write('|');
+						}
+						if (i == Point.BORDER_BOTTOM)
+						{
+							Console.Write('-');
+						}
 					}
 					else
 					{
-						Console.Write(' ');
+						Point temp = new Point(j, i);
+						if (points.Contains(temp) || temp.Equals(randomPoint))
+						{
+							Console.Write('*');
+						}
+						else
+						{
+							Console.Write(' ');
+						}
 					}
-				}
+                }
 				Console.WriteLine();
 			}
+			
 		}
 		public void Move(Direction direction)
 		{
@@ -46,15 +67,31 @@ namespace ConsoleControl
 				current.PosX = next.PosX;
 				current.PosY = next.PosY;
 			}
+			
 			Point head = points[0];
 			head.MovePoint(direction);
-			if (head.Equals(randomPoint))
+            if (!IsSet())
+            {
+                throw new Exception("End of game");
+            }
+            if (head.Equals(randomPoint))
 			{
-				Random rnd = new Random();
+				
 				Point newP = new Point(randomPoint);
 				points.Add(newP);
 				randomPoint = new Point(rnd.Next(Point.BORDER_RIGHT), rnd.Next(Point.BORDER_BOTTOM));
 			}
+            
+        }
+
+		private bool IsSet()
+		{
+			var groups = points.GroupBy(g => g);
+			foreach (var group in groups)
+			{
+				if (group.Count() > 1) return false;
+			}
+			return true;
 		}
 
 
@@ -74,16 +111,9 @@ namespace ConsoleControl
 			get => posX;
 			set
 			{
-				while (value < 0 || value > BORDER_RIGHT)
+				if (value < 0 || value >= BORDER_RIGHT)
 				{
-					if (value < 0)
-					{
-						value += BORDER_RIGHT + 1;
-					}
-					else
-					{
-						value -= BORDER_RIGHT + 1;
-					}
+					throw new Exception("Out of border");
 				}
 				posX = value;
 			}
@@ -93,18 +123,11 @@ namespace ConsoleControl
 			get => posY;
 			set
 			{
-				while (value < 0 || value > BORDER_BOTTOM)
-				{
-					if (value < 0)
-					{
-						value += BORDER_BOTTOM + 1;
-					}
-					else
-					{
-						value -= BORDER_BOTTOM + 1;
-					}
-				}
-				posY = value;
+                if (value < 0 || value >= BORDER_BOTTOM)
+                {
+                    throw new Exception("Out of border");
+                }
+                posY = value;
 			}
 		}
 
@@ -202,16 +225,20 @@ namespace ConsoleControl
 				switch (dir.Key)
 				{
 					case ConsoleKey.UpArrow:
-						direction = Direction.up;
+						if(direction != Direction.down)
+							direction = Direction.up;
 						break;
 					case ConsoleKey.DownArrow:
-						direction = Direction.down;
+                        if (direction != Direction.up)
+                            direction = Direction.down;
 						break;
 					case ConsoleKey.LeftArrow:
-						direction = Direction.left;
+                        if (direction != Direction.right)
+                            direction = Direction.left;
 						break;
 					case ConsoleKey.RightArrow:
-						direction = Direction.right;
+                        if (direction != Direction.left)
+                            direction = Direction.right;
 						break;
 					default:
 						end = true;
@@ -236,7 +263,15 @@ namespace ConsoleControl
 			while (!end)
 			{
 				sn.Refresh();
-				sn.Move(direction);
+				try
+				{
+                    sn.Move(direction);
+                }
+				catch (Exception ex)
+				{
+					Console.WriteLine(ex.Message);
+					return;
+				}
 				await Task.Delay(delay);
 			}
 		}
