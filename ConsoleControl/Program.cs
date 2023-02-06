@@ -1,32 +1,35 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-
 namespace ConsoleControl
 {
-
-	
-
-
-	
-
-	
-
+	enum Level
+	{
+		easy,
+		normal,
+		hard,
+		professional,
+		master,
+	}
 	class Program
 	{
 		private static Direction direction = Direction.right;
 		private static bool end = false;
-		private const int delay = 50;
+		private static int delay;
+		private static Level level;
 
 		static void Main(string[] args)
 		{
-			//Point p = new Point() {PosX = 0, PosY = Point.BORDER_BOTTOM };
-			//Go(p);
+			Console.WriteLine("Введите уровень сложности. (1-5) 1 - самый лёгкий, 5 - самый сложный");
+			level = (Level)int.Parse(Console.ReadLine());
+			
+			SetDelay();
 
-			Snake sn = new Snake();
+			Snake sn = new Snake(); //Вызывается статический конструктор точки и задаются основные параметры.
 			Go(sn);
 
 			while (!end)
@@ -50,24 +53,39 @@ namespace ConsoleControl
                         if (direction != Direction.left)
                             direction = Direction.right;
 						break;
-					default:
+					case ConsoleKey.F:
 						end = true;
+						break;
+					default:
 						break;
 				}
 			}
 			
 		}
-
-		static async void Go(Point p)
+		private static void SetDelay()
 		{
-			while (!end)
+			switch (level)
 			{
-				p.Refresh();
-				p.MovePoint(direction);
-				await Task.Delay(delay);
+				case Level.easy:
+					delay = 300;
+					break;
+				case Level.normal:
+					delay = 200;
+					break;
+				case Level.hard:
+					delay = 100;
+					break;
+				case Level.professional:
+					delay = 70;
+					break;
+				case Level.master:
+					delay = 50;
+					break;
+				default:
+					break;
 			}
-		}
 
+		}
 		static async void Go(Snake sn)
 		{
 			while (!end)
@@ -82,7 +100,14 @@ namespace ConsoleControl
 					Console.WriteLine(ex.Message);
 					return;
 				}
-				await Task.Delay(delay);
+				if (direction == Direction.up || direction == Direction.down)
+				{
+					await Task.Delay(delay * 3); //Движение по y
+				}
+				else
+				{
+					await Task.Delay(delay); //Движение по х
+				}
 			}
 		}
 	}

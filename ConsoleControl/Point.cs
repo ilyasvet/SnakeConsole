@@ -13,11 +13,11 @@ namespace ConsoleControl
 		up,
 		down,
 	}
-
     class Point
     {
-        public const int BORDER_BOTTOM = 10;
-        public const int BORDER_RIGHT = 25;
+        public static int borderBottom;
+        public static int borderRight;
+        private static bool _borderIsDead;
 
         private int posX;
         private int posY;
@@ -27,9 +27,17 @@ namespace ConsoleControl
             get => posX;
             set
             {
-                if (value < 0 || value >= BORDER_RIGHT)
+                if (value < 0 || value >= borderRight)
                 {
-                    throw new Exception("Out of border");
+                    if (_borderIsDead)
+                    {
+                        throw new Exception("Out of border");
+                    }
+                    else
+                    {
+                        posX = value == borderRight ? 0 : borderRight - 1;
+                        return;
+                    }
                 }
                 posX = value;
             }
@@ -39,14 +47,31 @@ namespace ConsoleControl
             get => posY;
             set
             {
-                if (value < 0 || value >= BORDER_BOTTOM)
+                
+                if (value < 0 || value >= borderBottom)
                 {
-                    throw new Exception("Out of border");
+                    if (_borderIsDead)
+                    {
+                        throw new Exception("Out of border");
+                    }
+                    else
+                    {
+                        posY = value == borderBottom ? 0 : borderBottom - 1;
+                        return;
+                    }
                 }
                 posY = value;
             }
         }
-
+        static Point()
+        {
+            Console.WriteLine("Введите высоту поля. (Не больше 10)");
+            borderBottom = int.Parse(Console.ReadLine()) % 11;
+            Console.WriteLine("Введите длину поляж. (Не больше 20)");
+            borderRight = int.Parse(Console.ReadLine()) % 21;
+            Console.WriteLine("Границы убивают змею?");
+            _borderIsDead = Convert.ToBoolean(int.Parse(Console.ReadLine()) % 2);
+        }
         public Point(Point p)
         {
             PosX = p.PosX;
@@ -57,7 +82,6 @@ namespace ConsoleControl
             PosX = x;
             PosY = y;
         }
-
         public void MovePoint(Direction direction)
         {
             switch (direction)
@@ -78,26 +102,6 @@ namespace ConsoleControl
                     break;
             }
         }
-        public void Refresh()
-        {
-            Console.Clear();
-            for (int i = 0; i < PosY; i++)
-            {
-                Console.WriteLine();
-            }
-            for (int i = 0; i < PosX; i++)
-            {
-                Console.Write(' ');
-            }
-            Console.Write('*');
-            Console.WriteLine();
-            for (int i = 0; i < BORDER_BOTTOM - PosY; i++)
-            {
-                Console.WriteLine();
-            }
-            Console.WriteLine($"\nPosX: {PosX}; PosY {BORDER_BOTTOM - PosY}");
-        }
-
         public override bool Equals(object obj)
         {
             return (obj as Point)?.PosX == PosX

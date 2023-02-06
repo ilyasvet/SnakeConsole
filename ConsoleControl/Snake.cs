@@ -12,8 +12,8 @@ namespace ConsoleControl
         private static Random rnd = new Random();
         private Point randomPoint = new Point()
         {
-            PosX = rnd.Next(Point.BORDER_RIGHT - 1),
-            PosY = rnd.Next(Point.BORDER_BOTTOM - 1)
+            PosX = rnd.Next(Point.borderRight - 1),
+            PosY = rnd.Next(Point.borderBottom - 1)
         };
 
         public void Add(Point p)
@@ -23,18 +23,18 @@ namespace ConsoleControl
         public void Refresh()
         {
             Console.Clear();
-            for (int i = 0; i <= Point.BORDER_BOTTOM; i++)
+            for (int i = 0; i <= Point.borderBottom; i++)
             {
-                for (int j = 0; j <= Point.BORDER_RIGHT; j++)
+                for (int j = 0; j <= Point.borderRight; j++)
                 {
-                    if (j == Point.BORDER_RIGHT || i == Point.BORDER_BOTTOM)
+                    if (j == Point.borderRight || i == Point.borderBottom)
                     {
 
-                        if (j == Point.BORDER_RIGHT)
+                        if (j == Point.borderRight)
                         {
                             Console.Write('|');
                         }
-                        if (i == Point.BORDER_BOTTOM)
+                        if (i == Point.borderBottom)
                         {
                             Console.Write('-');
                         }
@@ -77,11 +77,10 @@ namespace ConsoleControl
 
                 Point newP = new Point(randomPoint);
                 points.Add(newP);
-                randomPoint = new Point(rnd.Next(Point.BORDER_RIGHT), rnd.Next(Point.BORDER_BOTTOM));
+                randomPoint = new Point(rnd.Next(Point.borderRight), rnd.Next(Point.borderBottom));
             }
 
         }
-
         private bool IsSet()
         {
             var groups = points.GroupBy(g => g);
@@ -91,7 +90,5 @@ namespace ConsoleControl
             }
             return true;
         }
-
-
     }
 }
